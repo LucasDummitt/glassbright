@@ -1,0 +1,55 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yggsoft.glassbright"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="15" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.WRITE_SETTINGS" />    
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name">
+
+        <uses-library
+            android:name="com.google.android.glass"
+            android:required="true" />
+                
+		<receiver android:enabled="true" android:name="com.yggsoft.glassbright.GlassBrightReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.USER_PRESENT" />
+				<action android:name="android.intent.action.ACTION_SCREEN_ON" />
+				<action android:name="android.intent.action.SCREEN_ON" />
+				<action android:name="android.intent.action.HOME" />
+			</intent-filter>
+		</receiver>
+
+        <activity
+            android:name="com.yggsoft.glassbright.GlassBrightMenuActivity"
+            android:theme="@style/MenuTheme" />
+
+        <service
+            android:name="com.yggsoft.glassbright.GlassBrightService"
+            android:label="@string/app_name"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
+            </intent-filter>
+            <meta-data
+                android:name="com.google.android.glass.VoiceTrigger"
+                android:resource="@xml/voice_trigger" />
+        </service>
+
+        <activity
+            android:name=".StartGlassBrightActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>		
+        
+    </application>
+
+</manifest>
