@@ -58,6 +58,11 @@ public class GlassBrightMenuActivity extends Activity {
             	String strTimeout = GlassBrightTools.SetGlassBrightTimeout(getApplicationContext());
         	    mBoundService.UpdateTimeoutText(strTimeout);
         	    return true;
+            case R.id.autobright:
+            	String strAuto = GlassBrightTools.SetGlassAuto(getApplicationContext());
+        	    mBoundService.UpdateAutoText(strAuto);
+        	    return true;
+
             case R.id.disable:
                 stopService(new Intent(this, GlassBrightService.class));
                 return true;

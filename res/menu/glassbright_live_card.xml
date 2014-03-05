@@ -4,6 +4,9 @@
         android:id="@+id/timeout"
         android:title="@string/timeout"/>    
     <item
+        android:id="@+id/autobright"
+        android:title="@string/autobright"/>         
+    <item
         android:id="@+id/disable"
         android:title="@string/disable"/>
 </menu>

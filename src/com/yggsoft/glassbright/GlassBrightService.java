@@ -46,6 +46,19 @@ public class GlassBrightService extends Service {
         mLiveCard.setViews(liveCardView);        		    	
     }
     
+    public void UpdateAutoText(String strText)
+    {
+    	if(strText.equals(GlassBrightTools.SETTING_DISABLED_VALUE))
+    	{
+            liveCardView.setTextViewText(R.id.autoText, "Brightness: Full");
+    	}
+    	else
+    	{
+            liveCardView.setTextViewText(R.id.autoText, "Brightness: Auto");    		
+    	}
+        mLiveCard.setViews(liveCardView);        		    	
+    }    
+    
     public class LocalBinder extends Binder {
         GlassBrightService getService() {
             return GlassBrightService.this;
@@ -84,8 +97,17 @@ public class GlassBrightService extends Service {
 
             mLiveCard.setAction(PendingIntent.getActivity(this, 0, menuIntent, 0));
             liveCardView = new RemoteViews(this.getPackageName(), R.layout.glassbright_live_card);
-            liveCardView.setTextViewText(R.id.timeoutText, "Screen Timeout: 10");
+            if(GlassBrightTools.GetAuto(currentContext).equals(GlassBrightTools.SETTING_DISABLED_VALUE))
+            {
+            	liveCardView.setTextViewText(R.id.autoText, "Brightness: Full");
+            }
+            else
+            {
+            	liveCardView.setTextViewText(R.id.autoText, "Brightness: Auto");            	
+            }
+            liveCardView.setTextViewText(R.id.timeoutText, "Screen Timeout: " + GlassBrightTools.GetTimeout(currentContext));
             mLiveCard.setViews(liveCardView);
+            
             mLiveCard.publish(LiveCard.PublishMode.REVEAL);
         }
         else

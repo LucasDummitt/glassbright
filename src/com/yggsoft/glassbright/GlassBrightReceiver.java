@@ -42,22 +42,45 @@ public class GlassBrightReceiver extends BroadcastReceiver {
     		    		GlassBrightTools.EnableGlassBright(context);
     		    	}
 
-        			// Wakelock will keep head motions from shutting off (so rough head motions will not wake up and put it back to sleep)
-        			PowerManager pm;
-        			PowerManager.WakeLock wl;
-        			pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-        			wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "GlassBright WL");
-        			if(intValue != -1)
-        			{
-        				wl.acquire(intValue * 1000);
-            	    	Log.d(RECEIVER_TAG, "WakeLock acquired.  Timeout: " + (intValue * 1000) + " milliseconds.");
-        			}
-        			else
-        			{
-        				// If it  never goes off, we'll use a default 10 seconds for the wakelock
-        				wl.acquire();
-            	    	Log.d(RECEIVER_TAG, "WakeLock acquired.  This lock won't time out!");
-        			}
+    		    	String autoSetting = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+    		    	if(autoSetting.equals(GlassBrightTools.SETTING_ENABLED_VALUE))
+    		    	{
+    		    		// We won't do anything, because the user wants Glass to handle brightness
+    		    		PowerManager pm;
+    		    		PowerManager.WakeLock wl;
+    		    		pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    		    		wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "GlassBright WL D");
+    		    		if(intValue != -1)
+    		    		{
+    		    			wl.acquire(intValue * 1000);
+    		    			Log.d(RECEIVER_TAG, "WakeLock acquired.  Timeout: " + (intValue * 1000) + " milliseconds.");
+    		    		}
+    		    		else
+    		    		{
+    		    			// If it  never goes off, we'll use a default 10 seconds for the wakelock
+    		    			wl.acquire();
+    		    			Log.d(RECEIVER_TAG, "WakeLock acquired.  This lock won't time out!");
+    		    		}    		    	}
+    		    	else
+    		    	{
+    		    		
+    		    		// Wakelock will keep head motions from shutting off (so rough head motions will not wake up and put it back to sleep)
+    		    		PowerManager pm;
+    		    		PowerManager.WakeLock wl;
+    		    		pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    		    		wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "GlassBright WL B");
+    		    		if(intValue != -1)
+    		    		{
+    		    			wl.acquire(intValue * 1000);
+    		    			Log.d(RECEIVER_TAG, "WakeLock acquired.  Timeout: " + (intValue * 1000) + " milliseconds.");
+    		    		}
+    		    		else
+    		    		{
+    		    			// If it  never goes off, we'll use a default 10 seconds for the wakelock
+    		    			wl.acquire();
+    		    			Log.d(RECEIVER_TAG, "WakeLock acquired.  This lock won't time out!");
+    		    		}
+    		    	}
     			}
     			else
     			{

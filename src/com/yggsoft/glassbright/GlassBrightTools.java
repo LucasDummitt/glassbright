@@ -11,13 +11,14 @@ public class GlassBrightTools {
 
 	public static final String SETTING_GLASSBRIGHT_ENABLED = "GlassBrightEnabled";
 	public static final String SETTING_TIMER = "GlassBrightTimer";
+	public static final String SETTING_GLASSBRIGHT_AUTO = "GlassBrightAuto";
     public static final String SETTING_ENABLED_VALUE = "1";
     public static final String SETTING_DISABLED_VALUE = "0";
     public static final String SETTING_TIMER_DEFAULT = "10";
 
 	private static final String TOOLS_TAG = "GBTools";
 
-    // If the app settings don't exist, create them set to the defaults
+    // If any of the app settings don't exist, create them set to the defaults
     public static void CreateGlassBrightSettings(Context currentContext)
     {
     	GlassBrightDbAdapter mSettings = new GlassBrightDbAdapter(currentContext);
@@ -30,9 +31,14 @@ public class GlassBrightTools {
 		strValue = mSettings.getSetting(GlassBrightTools.SETTING_TIMER);
 		if(strValue == null)
 		{
-			// If it doesn't exist, create it and reload.
 			mSettings.createSetting(GlassBrightTools.SETTING_TIMER, GlassBrightTools.SETTING_TIMER_DEFAULT);
 		}		
+		strValue = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+		if(strValue == null)
+		{
+			mSettings.createSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO, GlassBrightTools.SETTING_DISABLED_VALUE);
+		}		
+		
 		mSettings.close();
     }
 
@@ -44,8 +50,18 @@ public class GlassBrightTools {
 		mSettings.open();
 		String strValue = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_ENABLED);
 		mSettings.updateSetting(GlassBrightTools.SETTING_GLASSBRIGHT_ENABLED, GlassBrightTools.SETTING_ENABLED_VALUE);
-		android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-        android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, 255);			
+
+    	String autoSetting = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+    	if(autoSetting.equals(GlassBrightTools.SETTING_ENABLED_VALUE))
+    	{
+    		// User wants Glass to handle brightness
+    		android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+    	}
+    	else
+    	{
+    		android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+    		android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, 255);			
+    	}
 		strValue = mSettings.getSetting(GlassBrightTools.SETTING_TIMER);
 		int intValue = Integer.parseInt(strValue);
 		if(intValue != -1)
@@ -96,8 +112,21 @@ public class GlassBrightTools {
 		{
 	    	Log.d(TOOLS_TAG, "Setting existed and was disabled.  Enabling...");
 			mSettings.updateSetting(GlassBrightTools.SETTING_GLASSBRIGHT_ENABLED, GlassBrightTools.SETTING_ENABLED_VALUE);			
-			modeSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-            brightnessSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, 255);			
+			//modeSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+			//brightnessSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, 255);			
+
+	    	String autoSetting = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+	    	if(autoSetting.equals(GlassBrightTools.SETTING_ENABLED_VALUE))
+	    	{
+	    		// User wants Glass to handle brightness
+	    		modeSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+	    	}
+	    	else
+	    	{
+	    		modeSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+	    		brightnessSet = android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, 255);			
+	    	}
+			
 			strValue = mSettings.getSetting(GlassBrightTools.SETTING_TIMER);
 			int intValue = Integer.parseInt(strValue);
 			if(intValue != -1)
@@ -155,7 +184,50 @@ public class GlassBrightTools {
 		Log.d(TOOLS_TAG, "Set the new timeout to: " + newValue);
 		return Integer.toString(newValue);
     }    
-	
+
+
+    public static String GetTimeout(Context currentContext)
+    {
+    	GlassBrightDbAdapter mSettings = new GlassBrightDbAdapter(currentContext);
+		mSettings.open();
+		String strValue = mSettings.getSetting(GlassBrightTools.SETTING_TIMER);
+    	mSettings.close();
+    	return strValue;
+    }
+
+    public static String SetGlassAuto(Context currentContext)
+    {
+    	GlassBrightDbAdapter mSettings = new GlassBrightDbAdapter(currentContext);
+		mSettings.open();
+		String strValue = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+		if(strValue.equals(SETTING_DISABLED_VALUE))
+		{
+			mSettings.updateSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO, SETTING_ENABLED_VALUE);
+			android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+			strValue = SETTING_ENABLED_VALUE;
+		}
+		else
+		{
+			mSettings.updateSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO, SETTING_DISABLED_VALUE);	
+			android.provider.Settings.System.putInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+			strValue = SETTING_DISABLED_VALUE;
+		}
+		mSettings.close();
+		return strValue;
+    }      
+    public static String GetAuto(Context currentContext)
+    {
+    	GlassBrightDbAdapter mSettings = new GlassBrightDbAdapter(currentContext);
+		mSettings.open();
+		String strValue = mSettings.getSetting(GlassBrightTools.SETTING_GLASSBRIGHT_AUTO);
+    	Log.d(TOOLS_TAG, "Auto setting value: " + strValue);		
+    	mSettings.close();
+    	return strValue;
+    }
+    
+    
+    // TODO: This needs to not check for auto brightness if the user wants auto brightness
+    // TODO: Still need menu option that toggles the auto brightness
     // Under certain conditions, Glass will change the power settings.  This returns true if this has happened
     public static boolean IsPowerReset(Context currentContext, int settingTimeout)
     {
@@ -164,14 +236,21 @@ public class GlassBrightTools {
         // int currentBrightness = android.provider.Settings.System.getInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS, -2);
         int currentTimeout = android.provider.Settings.System.getInt(currentContext.getContentResolver(), android.provider.Settings.System.SCREEN_OFF_TIMEOUT, -2);
 
+    	String autoSetting = GetAuto(currentContext);
+    	
         if(currentMode == -2 || currentTimeout == -2)
         {
         	Log.w(TOOLS_TAG, "Unable to get power settings!  This should never happen.");
         }
         // If brightness is set to automatic of the timeout doesn't equal the timeout set, return true
-        else if(currentMode == android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC || (settingTimeout*1000) != currentTimeout)
+        else if(autoSetting.equals(GlassBrightTools.SETTING_ENABLED_VALUE) && (settingTimeout*1000) != currentTimeout)
         {
-        	Log.d(TOOLS_TAG, "IsPowerReset is true");
+        	Log.d(TOOLS_TAG, "Auto is on, IsPowerReset is true");
+        	return true;        	
+        }
+        else if(autoSetting.equals(GlassBrightTools.SETTING_DISABLED_VALUE) && (currentMode == android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC || (settingTimeout*1000) != currentTimeout))
+        {
+        	Log.d(TOOLS_TAG, "Auto is off, IsPowerReset is true");
         	return true;
         }
     	Log.d(TOOLS_TAG, "IsPowerReset is false (default case)");

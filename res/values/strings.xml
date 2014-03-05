@@ -4,7 +4,9 @@
     <string name="glassbright_voice_trigger">toggle brightness</string>
 
     <string name="timeout">Next Timeout</string>
+    <string name="autobright">AutoBright</string>
     <string name="disable">Turn off</string>
     <string name="enabled_default">GlassBright On</string>
+    <string name="auto_default">Brightness: Unknown</string>
     <string name="timeout_default">Timeout: DEFAULT</string>
     </resources>
